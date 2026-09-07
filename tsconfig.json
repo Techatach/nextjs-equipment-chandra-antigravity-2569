@@ -21,6 +21,11 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/AddProduct/page.jsx", "src/components/EditProductForm.jsx", "src/app/editProduct/[id]/page.jsx", "src/components/ProductList.jsx", "src/components/RemoveBtn.jsx", "src/app/productlist/page.jsx", "src/app/products/page.jsx", "src/lib/Mongodb.js", "src/models/ProductModel.js", "src/components/AddProduct.jsx", "src/app/api/products/[id]/route.js", "src/app/api/products/route.js"],
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
   "exclude": ["node_modules"]
 }
