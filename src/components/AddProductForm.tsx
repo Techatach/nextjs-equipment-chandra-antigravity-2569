@@ -31,6 +31,7 @@ export default function AddProductForm() {
     qrcode: "",
   });
 
+  const [imagePreview, setImagePreview] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ text: string | null; isError: boolean }>({
     text: null,
@@ -49,6 +50,23 @@ export default function AddProductForm() {
       }
       return updated;
     });
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      alert("ขนาดไฟล์รูปภาพต้องไม่เกิน 2MB");
+      e.target.value = "";
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = reader.result as string;
+      setImagePreview(base64);
+      setFormData((prev) => ({ ...prev, image: base64 }));
+    };
+    reader.readAsDataURL(file);
   };
 
   const clearForm = () => {
@@ -70,6 +88,7 @@ export default function AddProductForm() {
       respondent: "",
       qrcode: "",
     });
+    setImagePreview("");
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -191,16 +210,39 @@ export default function AddProductForm() {
             {/* ภาพครุภัณฑ์ */}
             <div>
               <label className="label-text font-semibold text-gray-700 block mb-1">
-                URL รูปภาพ
+                รูปภาพครุภัณฑ์
               </label>
-              <input
-                name="image"
-                value={formData.image}
-                onChange={handleChange}
-                className="input input-bordered input-accent w-full"
-                type="text"
-                placeholder="https://... หรือ /images/item.jpg"
-              />
+              <div className="flex items-center gap-3">
+                {/* Preview */}
+                <div className="w-16 h-16 flex-shrink-0 rounded-lg border border-dashed border-gray-300 bg-gray-50 overflow-hidden flex items-center justify-center">
+                  {imagePreview ? (
+                    <img src={imagePreview} alt="preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-gray-400 text-[10px] text-center px-1">ไม่มีรูป</span>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="file-input file-input-bordered file-input-accent file-input-sm w-full"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">PNG, JPG, WEBP ขนาดไม่เกิน 2MB</p>
+                  {imagePreview && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImagePreview("");
+                        setFormData((prev) => ({ ...prev, image: "" }));
+                      }}
+                      className="text-xs text-red-500 hover:underline mt-0.5"
+                    >
+                      ลบรูปภาพ
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
 
             {/* สถานที่ใช้งาน */}

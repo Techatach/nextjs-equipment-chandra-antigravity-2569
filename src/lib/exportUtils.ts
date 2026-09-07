@@ -383,7 +383,6 @@ export async function exportToPdf(products: IProduct[], customFileName?: string)
     item.lastCheckedDate || "-",
   ]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (doc as any).autoTable({
     head: tableHeaders,
     body: tableData,

@@ -243,6 +243,24 @@ export default function ProductList() {
             >
               {isExportingWord ? "กำลังสร้างเอกสาร..." : "ดาวน์โหลด Word (.docx)"}
             </Button>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={handleExportPdf}
+              disabled={isExportingPdf}
+              sx={{
+                backgroundColor: "#c0392b",
+                "&:hover": { backgroundColor: "#96281b" },
+                fontWeight: "bold",
+                fontSize: "0.82rem",
+                borderRadius: "8px",
+                textTransform: "none",
+                boxShadow: "0 2px 4px rgba(192, 57, 43, 0.2)",
+              }}
+              startIcon={<PictureAsPdfIcon />}
+            >
+              {isExportingPdf ? "กำลังสร้างเอกสาร..." : "ดาวน์โหลด PDF (.pdf)"}
+            </Button>
           </div>
         </div>
       </div>
@@ -254,21 +272,29 @@ export default function ProductList() {
             <thead className="bg-gray-50 text-gray-700 text-xs uppercase tracking-wider border-b">
               <tr>
                 <th className="py-3 px-3">#</th>
+                <th className="py-3 px-3 text-center">จัดการ</th>
                 <th className="py-3 px-3">รูปภาพ</th>
                 <th className="py-3 px-3">หมายเลขครุภัณฑ์</th>
                 <th className="py-3 px-3">รายการครุภัณฑ์</th>
+                <th className="py-3 px-3">คุณลักษณะ / สเปค</th>
                 <th className="py-3 px-3">สถานที่ใช้งาน</th>
                 <th className="py-3 px-3">ผู้รับผิดชอบ</th>
                 <th className="py-3 px-3 text-right">ราคา (บาท)</th>
+                <th className="py-3 px-3 text-center">จำนวน</th>
+                <th className="py-3 px-3">วันที่ได้มา</th>
+                <th className="py-3 px-3">ปีจัดซื้อ</th>
+                <th className="py-3 px-3">วิธีการจัดหา</th>
+                <th className="py-3 px-3">งบประมาณ</th>
+                <th className="py-3 px-3">ประเภทครุภัณฑ์</th>
+                <th className="py-3 px-3">กลุ่มครุภัณฑ์</th>
                 <th className="py-3 px-3 text-center">สถานะ</th>
                 <th className="py-3 px-3 text-center">QR Code</th>
-                <th className="py-3 px-3 text-center">จัดการ</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 text-sm">
               {filteredProducts.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="py-12 text-center text-gray-400">
+                  <td colSpan={18} className="py-12 text-center text-gray-400">
                     <Inventory2OutlinedIcon sx={{ fontSize: 48, color: "#9ca3af", mb: 1 }} />
                     <p className="font-medium text-base text-gray-600">
                       {query ? "ไม่พบครุภัณฑ์ที่ตรงกับคำค้นหา" : "ยังไม่มีข้อมูลครุภัณฑ์"}
@@ -282,6 +308,19 @@ export default function ProductList() {
                 filteredProducts.map((element, index) => (
                   <tr key={element._id || element.num1 || index} className="hover:bg-emerald-50/40 transition">
                     <td className="py-3 px-3 text-gray-500 font-mono text-xs">{index + 1}</td>
+                    {/* ปุ่มจัดการ: แก้ไข + ลบ */}
+                    <td className="py-3 px-3 text-center">
+                      <div className="flex items-center justify-center gap-1.5">
+                        {element._id && <EditProductButton id={element._id} />}
+                        {element._id && (
+                          <RemoveBtn
+                            id={element._id}
+                            name={element.name}
+                            onDeleted={() => mutate()}
+                          />
+                        )}
+                      </div>
+                    </td>
                     <td className="py-3 px-3">
                       {element.image ? (
                         <img
@@ -304,11 +343,23 @@ export default function ProductList() {
                     <td className="py-3 px-3 font-medium text-gray-900 max-w-xs truncate" title={element.name}>
                       {element.name}
                     </td>
+                    <td className="py-3 px-3 text-gray-500 max-w-[160px] truncate text-xs" title={element.spec || ""}>
+                      {element.spec || "-"}
+                    </td>
                     <td className="py-3 px-3 text-gray-600 whitespace-nowrap">{element.building || "-"}</td>
                     <td className="py-3 px-3 text-gray-600 whitespace-nowrap">{element.respondent || "-"}</td>
                     <td className="py-3 px-3 text-right font-medium text-gray-800 whitespace-nowrap">
                       {Number(element.price || 0).toLocaleString()}
                     </td>
+                    <td className="py-3 px-3 text-center text-gray-700 whitespace-nowrap">
+                      {Number(element.num2 || 1).toLocaleString()}
+                    </td>
+                    <td className="py-3 px-3 text-gray-600 whitespace-nowrap">{element.date1 || "-"}</td>
+                    <td className="py-3 px-3 text-gray-600 whitespace-nowrap">{element.date2 || "-"}</td>
+                    <td className="py-3 px-3 text-gray-600 whitespace-nowrap">{element.method || "-"}</td>
+                    <td className="py-3 px-3 text-gray-600 whitespace-nowrap">{element.budget || "-"}</td>
+                    <td className="py-3 px-3 text-gray-600 whitespace-nowrap">{element.category || "-"}</td>
+                    <td className="py-3 px-3 text-gray-600 whitespace-nowrap">{element.group || "-"}</td>
                     <td className="py-3 px-3 text-center whitespace-nowrap">
                       <span
                         className={`inline-block px-2.5 py-1 text-xs font-semibold rounded-full border ${getStatusBadge(
@@ -329,18 +380,6 @@ export default function ProductList() {
                       >
                         <QrCode2Icon fontSize="small" />
                       </Button>
-                    </td>
-                    <td className="py-3 px-3 text-center">
-                      <div className="flex items-center justify-center gap-1.5">
-                        {element._id && <EditProductButton id={element._id} />}
-                        {element._id && (
-                          <RemoveBtn
-                            id={element._id}
-                            name={element.name}
-                            onDeleted={() => mutate()}
-                          />
-                        )}
-                      </div>
                     </td>
                   </tr>
                 ))

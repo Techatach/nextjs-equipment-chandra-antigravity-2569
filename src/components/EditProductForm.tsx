@@ -21,6 +21,7 @@ export default function EditProductForm({ id, initialData }: EditProductFormProp
   const [formData, setFormData] = useState<Partial<IProduct>>(initialData || {});
   const [isLoading, setIsLoading] = useState(!initialData);
   const [isSaving, setIsSaving] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string>(initialData?.image || "");
   const [message, setMessage] = useState<{ text: string | null; isError: boolean }>({
     text: null,
     isError: false,
@@ -36,6 +37,7 @@ export default function EditProductForm({ id, initialData }: EditProductFormProp
         })
         .then((data) => {
           setFormData(data);
+          if (data.image) setImagePreview(data.image);
         })
         .catch((err) => {
           setMessage({ text: err.message, isError: true });
@@ -51,6 +53,23 @@ export default function EditProductForm({ id, initialData }: EditProductFormProp
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      alert("ขนาดไฟล์รูปภาพต้องไม่เกิน 2MB");
+      e.target.value = "";
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = reader.result as string;
+      setImagePreview(base64);
+      setFormData((prev) => ({ ...prev, image: base64 }));
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -179,15 +198,39 @@ export default function EditProductForm({ id, initialData }: EditProductFormProp
             {/* ภาพครุภัณฑ์ */}
             <div>
               <label className="label-text font-semibold text-gray-700 block mb-1">
-                URL รูปภาพ
+                รูปภาพครุภัณฑ์
               </label>
-              <input
-                name="image"
-                value={formData.image || ""}
-                onChange={handleChange}
-                className="input input-bordered input-accent w-full"
-                type="text"
-              />
+              <div className="flex items-center gap-3">
+                {/* Preview */}
+                <div className="w-16 h-16 flex-shrink-0 rounded-lg border border-dashed border-gray-300 bg-gray-50 overflow-hidden flex items-center justify-center">
+                  {imagePreview ? (
+                    <img src={imagePreview} alt="preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-gray-400 text-[10px] text-center px-1">ไม่มีรูป</span>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="file-input file-input-bordered file-input-accent file-input-sm w-full"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">PNG, JPG, WEBP ขนาดไม่เกิน 2MB</p>
+                  {imagePreview && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImagePreview("");
+                        setFormData((prev) => ({ ...prev, image: "" }));
+                      }}
+                      className="text-xs text-red-500 hover:underline mt-0.5"
+                    >
+                      ลบรูปภาพ
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
 
             {/* สถานที่ใช้งาน */}
